@@ -1,45 +1,22 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'package:smart_discipline/screens/splash_screen.dart.dart';
 
+import 'theme/app_theme.dart';
 
-void main(){
-
-  runApp(
-    const SmartDiscipline()
-  );
-
+void main() {
+  runApp(const SmartDisciplineApp());
 }
 
-
-class SmartDiscipline extends StatelessWidget{
-
-  const SmartDiscipline({super.key});
-
+class SmartDisciplineApp extends StatelessWidget {
+  const SmartDisciplineApp({super.key});
 
   @override
-  Widget build(BuildContext context){
-
+  Widget build(BuildContext context) {
     return MaterialApp(
-
-      debugShowCheckedModeBanner:false,
-
-      title:"Smart Discipline",
-
-      theme:ThemeData(
-
-        colorSchemeSeed:
-        Colors.blue,
-
-        useMaterial3:true,
-
-      ),
-
-
-      home:
-      const LoginScreen(),
-
+      debugShowCheckedModeBanner: false,
+      title: 'Smart Discipline',
+      theme: AppTheme.lightTheme,
+      home: const SplashScreen(),
     );
-
   }
-
 }

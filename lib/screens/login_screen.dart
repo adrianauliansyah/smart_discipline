@@ -1,345 +1,511 @@
 import 'package:flutter/material.dart';
-import 'dashboard_guru.dart';
+import 'package:smart_discipline/screens/dashboard_guru.dart';
+
+import 'package:smart_discipline/theme/app_theme.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() =>
+      _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController =
-      TextEditingController(text: 'teacher@school.edu');
+class _LoginScreenState
+    extends State<LoginScreen> {
+  final emailController =
+      TextEditingController(
+    text: 'teacher@school.edu',
+  );
 
-  final TextEditingController passwordController =
-      TextEditingController(text: 'password123');
+  final passwordController =
+      TextEditingController(
+    text: 'password123',
+  );
 
-  String selectedRole = 'Guru';
-  bool showPassword = false;
+  String role = 'Guru';
 
-  final Color primaryBlue = const Color(0xFF3563B8);
-  final Color buttonBlue = const Color(0xFF3975D1);
-  final Color textGrey = const Color(0xFF7B88A8);
-  final Color borderColor = const Color(0xFFE0E5F0);
+  bool obscure = true;
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+
     super.dispose();
   }
 
-  void login() {
+  void _login() {
     if (emailController.text.trim().isEmpty ||
-        passwordController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+        passwordController.text
+            .trim()
+            .isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
         const SnackBar(
-          content: Text('Email dan password harus diisi'),
-        ),
-      );
-      return;
-    }
-
-    if (selectedRole == 'Guru') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const DashboardScreen(),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
           content: Text(
-            'Dashboard $selectedRole belum tersedia',
+            'Email dan password harus diisi.',
           ),
         ),
       );
+
+      return;
     }
+
+    if (role != 'Guru') {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        SnackBar(
+          content: Text(
+            'Dashboard $role belum diaktifkan.',
+          ),
+        ),
+      );
+
+      return;
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            const DashboardGuru(),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF9FD),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // HEADER
-            Container(
-              width: double.infinity,
-              height: 180,
-              decoration: BoxDecoration(
-                color: primaryBlue,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(28),
-                  bottomRight: Radius.circular(28),
+      body: LayoutBuilder(
+        builder: (
+          context,
+          constraints,
+        ) {
+          final desktop =
+              constraints.maxWidth >= 850;
+
+          // DESKTOP
+          if (desktop) {
+            return Row(
+              children: [
+                Expanded(
+                  flex: 11,
+
+                  child: Container(
+                    color: AppColors.primary,
+                    padding:
+                        const EdgeInsets.all(
+                      60,
+                    ),
+                    child:
+                        const _BrandPanel(),
+                  ),
                 ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 58,
-                    height: 58,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.35),
-                        width: 1.5,
+
+                Expanded(
+                  flex: 9,
+
+                  child: Center(
+                    child:
+                        SingleChildScrollView(
+                      padding:
+                          const EdgeInsets.all(
+                        40,
+                      ),
+
+                      child: ConstrainedBox(
+                        constraints:
+                            const BoxConstraints(
+                          maxWidth: 430,
+                        ),
+
+                        child: _LoginForm(
+                          emailController:
+                              emailController,
+                          passwordController:
+                              passwordController,
+                          role: role,
+                          obscure: obscure,
+
+                          onRoleChanged:
+                              (value) {
+                            setState(() {
+                              role = value;
+                            });
+                          },
+
+                          onTogglePassword:
+                              () {
+                            setState(() {
+                              obscure =
+                                  !obscure;
+                            });
+                          },
+
+                          onLogin: _login,
+                        ),
                       ),
                     ),
-                    child: const Icon(
-                      Icons.school_rounded,
-                      size: 34,
-                      color: Colors.white,
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // MOBILE
+          return SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    width:
+                        double.infinity,
+
+                    padding:
+                        const EdgeInsets
+                            .fromLTRB(
+                      24,
+                      42,
+                      24,
+                      36,
+                    ),
+
+                    decoration:
+                        const BoxDecoration(
+                      color:
+                          AppColors.primary,
+
+                      borderRadius:
+                          BorderRadius.only(
+                        bottomLeft:
+                            Radius.circular(
+                          34,
+                        ),
+                        bottomRight:
+                            Radius.circular(
+                          34,
+                        ),
+                      ),
+                    ),
+
+                    child:
+                        const _BrandPanel(
+                      compact: true,
                     ),
                   ),
 
-                  const SizedBox(height: 14),
-
-                  const Text(
-                    'Smart Discipline',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 21,
-                      fontWeight: FontWeight.bold,
+                  Padding(
+                    padding:
+                        const EdgeInsets.all(
+                      24,
                     ),
-                  ),
 
-                  const SizedBox(height: 4),
+                    child: _LoginForm(
+                      emailController:
+                          emailController,
 
-                  const Text(
-                    'Student Discipline Monitoring System',
-                    style: TextStyle(
-                      color: Color(0xFFCFD9F3),
-                      fontSize: 11,
+                      passwordController:
+                          passwordController,
+
+                      role: role,
+                      obscure: obscure,
+
+                      onRoleChanged:
+                          (value) {
+                        setState(() {
+                          role = value;
+                        });
+                      },
+
+                      onTogglePassword:
+                          () {
+                        setState(() {
+                          obscure =
+                              !obscure;
+                        });
+                      },
+
+                      onLogin: _login,
                     ),
                   ),
                 ],
               ),
             ),
-
-            // FORM LOGIN
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 22,
-                  vertical: 27,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Welcome Back',
-                      style: TextStyle(
-                        color: Color(0xFF101322),
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    Text(
-                      'Sign in to your account',
-                      style: TextStyle(
-                        color: textGrey,
-                        fontSize: 12,
-                      ),
-                    ),
-
-                    const SizedBox(height: 25),
-
-                    _buildLabel('EMAIL / USERNAME'),
-
-                    const SizedBox(height: 7),
-
-                    TextField(
-                      controller: emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF27324A),
-                      ),
-                      decoration: _inputDecoration(
-                        hintText: 'teacher@school.edu',
-                      ),
-                    ),
-
-                    const SizedBox(height: 17),
-
-                    _buildLabel('PASSWORD'),
-
-                    const SizedBox(height: 7),
-
-                    TextField(
-                      controller: passwordController,
-                      obscureText: !showPassword,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF27324A),
-                      ),
-                      decoration: _inputDecoration(
-                        hintText: 'Masukkan password',
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              showPassword = !showPassword;
-                            });
-                          },
-                          icon: Icon(
-                            showPassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            color: const Color(0xFFA9B3CA),
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 17),
-
-                    _buildLabel('LOGIN AS'),
-
-                    const SizedBox(height: 7),
-
-                    DropdownButtonFormField<String>(
-                      value: selectedRole,
-                      isExpanded: true,
-                      icon: const Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: Color(0xFF9AA8C4),
-                      ),
-                      decoration: _inputDecoration(),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF27324A),
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'Guru',
-                          child: Text('Guru'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Admin',
-                          child: Text('Admin'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Siswa',
-                          child: Text('Siswa'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Orang Tua',
-                          child: Text('Orang Tua'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            selectedRole = value;
-                          });
-                        }
-                      },
-                    ),
-
-                    const SizedBox(height: 21),
-
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: login,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: buttonBlue,
-                          foregroundColor: Colors.white,
-                          elevation: 5,
-                          shadowColor: buttonBlue.withOpacity(0.30),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'LOGIN',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    Center(
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                            color: primaryBlue,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
+}
 
-  Widget _buildLabel(String text) {
+class _BrandPanel extends StatelessWidget {
+  final bool compact;
+
+  const _BrandPanel({
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment:
+          MainAxisAlignment.center,
+
+      crossAxisAlignment: compact
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
+
+      children: [
+        Container(
+          width: compact ? 64 : 78,
+          height: compact ? 64 : 78,
+
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(
+  alpha: 0.12,
+),
+
+            borderRadius:
+                BorderRadius.circular(22),
+
+            border: Border.all(
+              color: Colors.white30,
+            ),
+          ),
+
+          child: Icon(
+            Icons.school_rounded,
+            color: Colors.white,
+            size: compact ? 36 : 44,
+          ),
+        ),
+
+        const SizedBox(height: 22),
+
+        Text(
+          'Smart Discipline',
+
+          textAlign: compact
+              ? TextAlign.center
+              : TextAlign.start,
+
+          style: TextStyle(
+            color: Colors.white,
+            fontSize:
+                compact ? 25 : 38,
+            fontWeight:
+                FontWeight.w900,
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        Text(
+          'Student Discipline Monitoring System',
+
+          textAlign: compact
+              ? TextAlign.center
+              : TextAlign.start,
+
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+          ),
+        ),
+
+        if (!compact) ...[
+          const SizedBox(height: 36),
+
+          const Text(
+            'Pantau siswa, catat pelanggaran, dan lihat laporan kedisiplinan dalam satu dashboard modern.',
+            style: TextStyle(
+              color: Colors.white70,
+              height: 1.6,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _LoginForm
+    extends StatelessWidget {
+  final TextEditingController
+      emailController;
+
+  final TextEditingController
+      passwordController;
+
+  final String role;
+  final bool obscure;
+
+  final ValueChanged<String>
+      onRoleChanged;
+
+  final VoidCallback
+      onTogglePassword;
+
+  final VoidCallback onLogin;
+
+  const _LoginForm({
+    required this.emailController,
+    required this.passwordController,
+    required this.role,
+    required this.obscure,
+    required this.onRoleChanged,
+    required this.onTogglePassword,
+    required this.onLogin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+      children: [
+        const Text(
+          'Welcome Back',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+
+        const SizedBox(height: 6),
+
+        const Text(
+          'Masuk ke akun Smart Discipline.',
+          style: TextStyle(
+            color: AppColors.muted,
+          ),
+        ),
+
+        const SizedBox(height: 28),
+
+        const _FieldLabel(
+          'EMAIL / USERNAME',
+        ),
+
+        const SizedBox(height: 8),
+
+        TextField(
+          controller: emailController,
+          decoration:
+              const InputDecoration(
+            prefixIcon: Icon(
+              Icons.mail_outline_rounded,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 18),
+
+        const _FieldLabel(
+          'PASSWORD',
+        ),
+
+        const SizedBox(height: 8),
+
+        TextField(
+          controller:
+              passwordController,
+          obscureText: obscure,
+
+          decoration: InputDecoration(
+            prefixIcon: const Icon(
+              Icons.lock_outline_rounded,
+            ),
+
+            suffixIcon: IconButton(
+              onPressed:
+                  onTogglePassword,
+
+              icon: Icon(
+                obscure
+                    ? Icons
+                        .visibility_off_outlined
+                    : Icons
+                        .visibility_outlined,
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 18),
+
+        const _FieldLabel(
+          'LOGIN AS',
+        ),
+
+        const SizedBox(height: 8),
+
+        DropdownButtonFormField<String>(
+
+  initialValue: role,
+
+          items: const [
+            'Guru',
+            'Admin',
+            'Siswa',
+            'Orang Tua'
+          ]
+              .map(
+                (e) =>
+                    DropdownMenuItem(
+                  value: e,
+                  child: Text(e),
+                ),
+              )
+              .toList(),
+
+          onChanged: (value) {
+            if (value != null) {
+              onRoleChanged(value);
+            }
+          },
+        ),
+
+        const SizedBox(height: 24),
+
+        ElevatedButton(
+          onPressed: onLogin,
+          child: const Text('LOGIN'),
+        ),
+
+        const SizedBox(height: 8),
+
+        Center(
+          child: TextButton(
+            onPressed: () {},
+            child: const Text(
+              'Forgot Password?',
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FieldLabel
+    extends StatelessWidget {
+  final String text;
+
+  const _FieldLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
     return Text(
       text,
       style: const TextStyle(
-        color: Color(0xFF7B88A8),
-        fontSize: 10,
-        fontWeight: FontWeight.w600,
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration({
-    String? hintText,
-    Widget? suffixIcon,
-  }) {
-    return InputDecoration(
-      hintText: hintText,
-      hintStyle: const TextStyle(
-        color: Color(0xFF9EA8BB),
-        fontSize: 13,
-      ),
-      suffixIcon: suffixIcon,
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 13,
-        vertical: 14,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: borderColor,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: primaryBlue,
-          width: 1.4,
-        ),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.muted,
+        fontSize: 11,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.5,
       ),
     );
   }
