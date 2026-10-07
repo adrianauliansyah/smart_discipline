@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dashboard_screen.dart';
+import 'dashboard_guru.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,7 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController =
       TextEditingController(text: 'password123');
 
-  String selectedRole = 'Teacher';
+  String selectedRole = 'Guru';
   bool showPassword = false;
 
   final Color primaryBlue = const Color(0xFF3563B8);
@@ -31,12 +31,32 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void login() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const DashboardScreen(),
-      ),
-    );
+    if (emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email dan password harus diisi'),
+        ),
+      );
+      return;
+    }
+
+    if (selectedRole == 'Guru') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const DashboardScreen(),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Dashboard $selectedRole belum tersedia',
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -46,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ================= HEADER =================
+            // HEADER
             Container(
               width: double.infinity,
               height: 180,
@@ -60,7 +80,6 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo
                   Container(
                     width: 58,
                     height: 58,
@@ -97,14 +116,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       color: Color(0xFFCFD9F3),
                       fontSize: 11,
-                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
               ),
             ),
 
-            // ================= FORM =================
+            // FORM LOGIN
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
@@ -135,7 +153,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 25),
 
-                    // ================= EMAIL =================
                     _buildLabel('EMAIL / USERNAME'),
 
                     const SizedBox(height: 7),
@@ -154,7 +171,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 17),
 
-                    // ================= PASSWORD =================
                     _buildLabel('PASSWORD'),
 
                     const SizedBox(height: 7),
@@ -167,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Color(0xFF27324A),
                       ),
                       decoration: _inputDecoration(
-                        hintText: 'Enter your password',
+                        hintText: 'Masukkan password',
                         suffixIcon: IconButton(
                           onPressed: () {
                             setState(() {
@@ -178,8 +194,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             showPassword
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
-                            size: 20,
                             color: const Color(0xFFA9B3CA),
+                            size: 20,
                           ),
                         ),
                       ),
@@ -187,38 +203,38 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 17),
 
-                    // ================= ROLE =================
                     _buildLabel('LOGIN AS'),
 
                     const SizedBox(height: 7),
 
                     DropdownButtonFormField<String>(
                       value: selectedRole,
+                      isExpanded: true,
                       icon: const Icon(
                         Icons.keyboard_arrow_down_rounded,
                         color: Color(0xFF9AA8C4),
                       ),
+                      decoration: _inputDecoration(),
                       style: const TextStyle(
                         fontSize: 13,
                         color: Color(0xFF27324A),
                       ),
-                      decoration: _inputDecoration(),
                       items: const [
+                        DropdownMenuItem(
+                          value: 'Guru',
+                          child: Text('Guru'),
+                        ),
                         DropdownMenuItem(
                           value: 'Admin',
                           child: Text('Admin'),
                         ),
                         DropdownMenuItem(
-                          value: 'Teacher',
-                          child: Text('Teacher'),
+                          value: 'Siswa',
+                          child: Text('Siswa'),
                         ),
                         DropdownMenuItem(
-                          value: 'Student',
-                          child: Text('Student'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Parent',
-                          child: Text('Parent'),
+                          value: 'Orang Tua',
+                          child: Text('Orang Tua'),
                         ),
                       ],
                       onChanged: (value) {
@@ -232,7 +248,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 21),
 
-                    // ================= LOGIN BUTTON =================
                     SizedBox(
                       width: double.infinity,
                       height: 48,
@@ -242,7 +257,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           backgroundColor: buttonBlue,
                           foregroundColor: Colors.white,
                           elevation: 5,
-                          shadowColor: buttonBlue.withOpacity(0.35),
+                          shadowColor: buttonBlue.withOpacity(0.30),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -259,12 +274,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 10),
 
-                    // ================= FORGOT PASSWORD =================
                     Center(
                       child: TextButton(
-                        onPressed: () {
-                          // Nanti bisa diarahkan ke halaman Forgot Password
-                        },
+                        onPressed: () {},
                         child: Text(
                           'Forgot Password?',
                           style: TextStyle(
@@ -285,7 +297,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ================= LABEL =================
   Widget _buildLabel(String text) {
     return Text(
       text,
@@ -297,7 +308,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ================= INPUT STYLE =================
   InputDecoration _inputDecoration({
     String? hintText,
     Widget? suffixIcon,
@@ -319,7 +329,6 @@ class _LoginScreenState extends State<LoginScreen> {
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(
           color: borderColor,
-          width: 1,
         ),
       ),
       focusedBorder: OutlineInputBorder(
