@@ -1,4 +1,4 @@
-# aplikasi_pertama
+# aplikasi_smart discipline
 
 A new Flutter project.
 

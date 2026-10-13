@@ -1,15 +1,21 @@
+
 import 'package:flutter/material.dart';
+
+import 'riwayat_siswa_screen.dart';
+import 'profil_siswa_screen.dart';
 
 class DashboardSiswa extends StatefulWidget {
   const DashboardSiswa({super.key});
 
   @override
-  State<DashboardSiswa> createState() => _DashboardSiswaState();
+  State<DashboardSiswa> createState() =>
+      _DashboardSiswaState();
 }
 
 class _DashboardSiswaState extends State<DashboardSiswa> {
-  int selectedIndex = 0;
-
+  // =====================================================
+  // WARNA APLIKASI
+  // =====================================================
   static const Color primaryBlue = Color(0xFF3563B8);
   static const Color primaryDark = Color(0xFF254A96);
   static const Color background = Color(0xFFF6F8FC);
@@ -20,6 +26,47 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
   static const Color orange = Color(0xFFF0A13B);
   static const Color red = Color(0xFFE65B56);
 
+  // =====================================================
+  // NAVIGASI KE RIWAYAT SISWA
+  // =====================================================
+  void _bukaRiwayat() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            const RiwayatSiswaScreen(),
+      ),
+    );
+  }
+
+  // =====================================================
+  // NAVIGASI KE PROFIL SISWA
+  // =====================================================
+  void _bukaProfil() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            const ProfilSiswaScreen(),
+      ),
+    );
+  }
+
+  // =====================================================
+  // PESAN NOTIFIKASI
+  // =====================================================
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  // =====================================================
+  // SAPAAN BERDASARKAN WAKTU
+  // =====================================================
   String getGreeting() {
     final hour = DateTime.now().hour;
 
@@ -34,6 +81,9 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
     }
   }
 
+  // =====================================================
+  // TANGGAL HARI INI
+  // =====================================================
   String getCurrentDate() {
     final now = DateTime.now();
 
@@ -66,6 +116,9 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
         '${now.day} ${months[now.month - 1]} ${now.year}';
   }
 
+  // =====================================================
+  // TAMPILAN UTAMA DASHBOARD
+  // =====================================================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,35 +127,42 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final bool desktop = constraints.maxWidth >= 800;
+            final bool desktop =
+                constraints.maxWidth >= 800;
 
             return SingleChildScrollView(
-              padding: EdgeInsets.all(desktop ? 28 : 18),
+              padding: EdgeInsets.all(
+                desktop ? 28 : 18,
+              ),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
                     maxWidth: 1200,
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: [
-                      // ===============================
+                      // =============================
                       // HEADER
-                      // ===============================
+                      // =============================
                       _buildHeader(),
 
                       const SizedBox(height: 22),
 
-                      // ===============================
-                      // STATISTIK
-                      // ===============================
+                      // =============================
+                      // STATISTIK SISWA
+                      // =============================
                       GridView.count(
                         shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: desktop ? 4 : 2,
+                        physics:
+                            const NeverScrollableScrollPhysics(),
+                        crossAxisCount:
+                            desktop ? 4 : 2,
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
-                        childAspectRatio: desktop ? 1.35 : 1.05,
+                        childAspectRatio:
+                            desktop ? 1.35 : 1.05,
                         children: const [
                           _StatisticCard(
                             icon: Icons.star_rounded,
@@ -110,18 +170,22 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
                             title: 'Skor Kedisiplinan',
                             color: green,
                           ),
+
                           _StatisticCard(
                             icon: Icons.warning_rounded,
                             value: '3',
                             title: 'Pelanggaran',
                             color: red,
                           ),
+
                           _StatisticCard(
-                            icon: Icons.remove_circle_rounded,
+                            icon:
+                                Icons.remove_circle_rounded,
                             value: '18',
                             title: 'Total Poin',
                             color: orange,
                           ),
+
                           _StatisticCard(
                             icon: Icons.verified_rounded,
                             value: 'Baik',
@@ -133,9 +197,9 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
 
                       const SizedBox(height: 25),
 
-                      // ===============================
+                      // =============================
                       // STATUS KEDISIPLINAN
-                      // ===============================
+                      // =============================
                       const Text(
                         'Status Kedisiplinan',
                         style: TextStyle(
@@ -151,76 +215,34 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
 
                       const SizedBox(height: 25),
 
-                      // ===============================
-                      // MENU CEPAT
-                      // ===============================
-                      const Text(
-                        'Menu Cepat',
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
+                      // =============================
+                      // MENU CEPAT SUDAH DIHAPUS
+                      // =============================
 
-                      const SizedBox(height: 12),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _QuickMenuCard(
-                              icon: Icons.history_rounded,
-                              title: 'Riwayat\nPelanggaran',
-                              color: orange,
-                              onTap: () {
-                                _showMessage(
-                                  'Halaman riwayat akan dibuat berikutnya.',
-                                );
-                              },
-                            ),
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          Expanded(
-                            child: _QuickMenuCard(
-                              icon: Icons.person_rounded,
-                              title: 'Profil\nSaya',
-                              color: primaryBlue,
-                              onTap: () {
-                                _showMessage(
-                                  'Halaman profil akan dibuat berikutnya.',
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 25),
-
-                      // ===============================
+                      // =============================
                       // PELANGGARAN TERBARU
-                      // ===============================
+                      // =============================
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Pelanggaran Terbaru',
-                            style: TextStyle(
-                              color: textColor,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w900,
+                          const Expanded(
+                            child: Text(
+                              'Pelanggaran Terbaru',
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 17,
+                                fontWeight:
+                                    FontWeight.w900,
+                              ),
                             ),
                           ),
 
                           TextButton(
-                            onPressed: () {
-                              _showMessage(
-                                'Riwayat lengkap akan dibuat berikutnya.',
-                              );
-                            },
-                            child: const Text('Lihat Semua'),
+                            onPressed: _bukaRiwayat,
+                            child: const Text(
+                              'Lihat Semua',
+                            ),
                           ),
                         ],
                       ),
@@ -230,7 +252,8 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
                       const _ViolationCard(
                         icon: Icons.schedule_rounded,
                         title: 'Terlambat masuk kelas',
-                        date: '15 Januari 2026 • 08:15',
+                        date:
+                            '15 Januari 2026 • 08:15',
                         category: 'Ringan',
                         point: '-5',
                         color: orange,
@@ -241,7 +264,8 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
                       const _ViolationCard(
                         icon: Icons.checkroom_rounded,
                         title: 'Seragam tidak lengkap',
-                        date: '10 Januari 2026 • 07:30',
+                        date:
+                            '10 Januari 2026 • 07:30',
                         category: 'Sedang',
                         point: '-3',
                         color: red,
@@ -257,39 +281,39 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
         ),
       ),
 
-      // ===============================
-      // BOTTOM NAVIGATION
-      // ===============================
+      // =================================================
+      // NAVIGASI BAWAH
+      // HANYA RIWAYAT DAN PROFIL
+      // =================================================
       bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex,
+        backgroundColor:
+            const Color(0xFFF0ECF5),
+
+        selectedIndex: 0,
+
+        indicatorColor:
+            const Color(0xFFE0E3FA),
+
         onDestinationSelected: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-
-          if (index == 1) {
-            _showMessage(
-              'Halaman riwayat akan dibuat berikutnya.',
-            );
-          }
-
-          if (index == 2) {
-            _showMessage(
-              'Halaman profil akan dibuat berikutnya.',
-            );
+          if (index == 0) {
+            _bukaRiwayat();
+          } else if (index == 1) {
+            _bukaProfil();
           }
         },
+
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.history_rounded),
+            icon: Icon(
+              Icons.history_rounded,
+            ),
             label: 'Riwayat',
           ),
+
           NavigationDestination(
-            icon: Icon(Icons.person_rounded),
+            icon: Icon(
+              Icons.person_rounded,
+            ),
             label: 'Profil',
           ),
         ],
@@ -297,13 +321,14 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
     );
   }
 
-  // ==========================================================
-  // HEADER
-  // ==========================================================
+  // =====================================================
+  // HEADER DASHBOARD
+  // =====================================================
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
+
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -313,28 +338,41 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(26),
+
+        borderRadius:
+            BorderRadius.circular(26),
+
         boxShadow: [
           BoxShadow(
-            color: primaryBlue.withValues(alpha: 0.20),
+            color: primaryBlue.withValues(
+              alpha: 0.20,
+            ),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],
       ),
+
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Row(
             children: [
+              // FOTO PROFIL
               Container(
                 width: 56,
                 height: 56,
+
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.16),
+                  color: Colors.white.withValues(
+                    alpha: 0.16,
+                  ),
                   shape: BoxShape.circle,
                 ),
+
                 alignment: Alignment.center,
+
                 child: const Text(
                   'AR',
                   style: TextStyle(
@@ -347,9 +385,11 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
 
               const SizedBox(width: 14),
 
+              // IDENTITAS SISWA
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Text(
                       getGreeting(),
@@ -366,7 +406,8 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
-                        fontWeight: FontWeight.w900,
+                        fontWeight:
+                            FontWeight.w900,
                       ),
                     ),
 
@@ -383,20 +424,33 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
                 ),
               ),
 
+              // TOMBOL NOTIFIKASI
               Stack(
                 clipBehavior: Clip.none,
                 children: [
                   Container(
                     width: 42,
                     height: 42,
+
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.13),
-                      borderRadius: BorderRadius.circular(14),
+                      color:
+                          Colors.white.withValues(
+                        alpha: 0.13,
+                      ),
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
+
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _showMessage(
+                          'Notifikasi belum tersedia.',
+                        );
+                      },
+
                       icon: const Icon(
-                        Icons.notifications_none_rounded,
+                        Icons
+                            .notifications_none_rounded,
                         color: Colors.white,
                       ),
                     ),
@@ -408,7 +462,9 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
                     child: Container(
                       width: 8,
                       height: 8,
-                      decoration: const BoxDecoration(
+
+                      decoration:
+                          const BoxDecoration(
                         color: Color(0xFFFF6B6B),
                         shape: BoxShape.circle,
                       ),
@@ -421,15 +477,22 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
 
           const SizedBox(height: 18),
 
+          // TANGGAL
           Container(
-            padding: const EdgeInsets.symmetric(
+            padding:
+                const EdgeInsets.symmetric(
               horizontal: 13,
               vertical: 8,
             ),
+
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.13),
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.white.withValues(
+                alpha: 0.13,
+              ),
+              borderRadius:
+                  BorderRadius.circular(20),
             ),
+
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -446,7 +509,8 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11,
-                    fontWeight: FontWeight.w600,
+                    fontWeight:
+                        FontWeight.w600,
                   ),
                 ),
               ],
@@ -457,31 +521,40 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
     );
   }
 
-  // ==========================================================
+  // =====================================================
   // PROGRESS KEDISIPLINAN
-  // ==========================================================
+  // =====================================================
   Widget _buildDisciplineProgress() {
     return Container(
       padding: const EdgeInsets.all(20),
+
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius:
+            BorderRadius.circular(22),
+
         border: Border.all(
           color: borderColor,
         ),
+
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(
+              alpha: 0.03,
+            ),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
         ],
       ),
+
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Skor kamu saat ini',
@@ -505,12 +578,17 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
           const SizedBox(height: 15),
 
           ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius:
+                BorderRadius.circular(20),
+
             child: LinearProgressIndicator(
               value: 0.85,
               minHeight: 13,
               color: green,
-              backgroundColor: green.withValues(alpha: 0.12),
+              backgroundColor:
+                  green.withValues(
+                alpha: 0.12,
+              ),
             ),
           ),
 
@@ -541,20 +619,11 @@ class _DashboardSiswaState extends State<DashboardSiswa> {
       ),
     );
   }
-
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
 }
 
-// ============================================================
-// STATISTIC CARD
-// ============================================================
+// =====================================================
+// KARTU STATISTIK
+// =====================================================
 class _StatisticCard extends StatelessWidget {
   final IconData icon;
   final String value;
@@ -572,30 +641,45 @@ class _StatisticCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(15),
+
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+
+        borderRadius:
+            BorderRadius.circular(20),
+
         border: Border.all(
-          color: _DashboardSiswaState.borderColor,
+          color:
+              _DashboardSiswaState.borderColor,
         ),
+
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(
+              alpha: 0.03,
+            ),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
         ],
       ),
+
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Container(
             width: 40,
             height: 40,
+
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(13),
+              color: color.withValues(
+                alpha: 0.12,
+              ),
+              borderRadius:
+                  BorderRadius.circular(13),
             ),
+
             child: Icon(
               icon,
               color: color,
@@ -608,7 +692,8 @@ class _StatisticCard extends StatelessWidget {
           Text(
             value,
             style: const TextStyle(
-              color: _DashboardSiswaState.textColor,
+              color:
+                  _DashboardSiswaState.textColor,
               fontSize: 23,
               fontWeight: FontWeight.w900,
             ),
@@ -619,7 +704,8 @@ class _StatisticCard extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              color: _DashboardSiswaState.greyText,
+              color:
+                  _DashboardSiswaState.greyText,
               fontSize: 10,
             ),
           ),
@@ -629,82 +715,9 @@ class _StatisticCard extends StatelessWidget {
   }
 }
 
-// ============================================================
-// QUICK MENU
-// ============================================================
-class _QuickMenuCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _QuickMenuCard({
-    required this.icon,
-    required this.title,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          height: 90,
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: _DashboardSiswaState.borderColor,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 43,
-                height: 43,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  icon,
-                  color: color,
-                ),
-              ),
-
-              const SizedBox(width: 11),
-
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: _DashboardSiswaState.textColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: _DashboardSiswaState.greyText,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// VIOLATION CARD
-// ============================================================
+// =====================================================
+// KARTU PELANGGARAN TERBARU
+// =====================================================
 class _ViolationCard extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -726,22 +739,33 @@ class _ViolationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
+
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(19),
+
+        borderRadius:
+            BorderRadius.circular(19),
+
         border: Border.all(
-          color: _DashboardSiswaState.borderColor,
+          color:
+              _DashboardSiswaState.borderColor,
         ),
       ),
+
       child: Row(
         children: [
           Container(
             width: 45,
             height: 45,
+
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
+              color: color.withValues(
+                alpha: 0.12,
+              ),
+              borderRadius:
+                  BorderRadius.circular(14),
             ),
+
             child: Icon(
               icon,
               color: color,
@@ -752,12 +776,14 @@ class _ViolationCard extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
                   style: const TextStyle(
-                    color: _DashboardSiswaState.textColor,
+                    color:
+                        _DashboardSiswaState.textColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
@@ -768,7 +794,8 @@ class _ViolationCard extends StatelessWidget {
                 Text(
                   date,
                   style: const TextStyle(
-                    color: _DashboardSiswaState.greyText,
+                    color:
+                        _DashboardSiswaState.greyText,
                     fontSize: 10,
                   ),
                 ),
@@ -776,20 +803,27 @@ class _ViolationCard extends StatelessWidget {
                 const SizedBox(height: 7),
 
                 Container(
-                  padding: const EdgeInsets.symmetric(
+                  padding:
+                      const EdgeInsets.symmetric(
                     horizontal: 8,
                     vertical: 3,
                   ),
+
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(10),
+                    color: color.withValues(
+                      alpha: 0.10,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(10),
                   ),
+
                   child: Text(
                     category,
                     style: TextStyle(
                       color: color,
                       fontSize: 9,
-                      fontWeight: FontWeight.w700,
+                      fontWeight:
+                          FontWeight.w700,
                     ),
                   ),
                 ),
