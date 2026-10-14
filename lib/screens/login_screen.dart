@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:smart_discipline/screens/dashboard_guru.dart';
 import 'package:smart_discipline/screens/siswa/dashboard_siswa.dart';
+import 'package:smart_discipline/screens/orang_tua/dashboard_orang_tua.dart';
 import 'package:smart_discipline/theme/app_theme.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -38,6 +39,79 @@ class _LoginScreenState extends State<LoginScreen> {
   // LOGIN
   // =========================================================
   void _login() {
+ // VALIDASI EMAIL / USERNAME
+  if (emailController.text.trim().isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Email / Username harus diisi.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
+  
+}
+    // VALIDASI PASSWORD
+  if (passwordController.text.trim().isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Password harus diisi.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
+  }
+// VALIDASI PASSWORD
+  if (passwordController.text.trim().isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Password harus diisi.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
+  }
+  // LOGIN GURU
+  if (role == 'Guru') {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const DashboardGuru(),
+      ),
+    );
+    return;
+  }
+  // LOGIN SISWA
+  if (role == 'Siswa') {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const DashboardSiswa(),
+      ),
+    );
+    return;
+  }
+  // LOGIN ORANG TUA
+  if (role == 'Orang Tua') {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DashboardOrangTua(),
+      ),
+    );
+    return;
+  }
+   // LOGIN ADMIN
+  if (role == 'Admin') {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Dashboard Admin belum dibuat.',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    return;
+  }
     // Cek email
     if (emailController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
