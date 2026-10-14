@@ -51,7 +51,7 @@ class _SplashScreenState
 
               decoration: BoxDecoration(
                 color:
-                    Colors.white.withOpacity(0.13),
+                    Colors.white..withValues(alpha: 0.12),
                 borderRadius:
                     BorderRadius.circular(26),
                 border: Border.all(
