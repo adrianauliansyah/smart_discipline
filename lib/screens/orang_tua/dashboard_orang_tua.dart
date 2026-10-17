@@ -1,9 +1,5 @@
-
 import 'package:flutter/material.dart';
-
-// ======================================================
-// DASHBOARD ORANG TUA - SMART DISCIPLINE
-// ======================================================
+import '../login_screen.dart';
 
 class DashboardOrangTua extends StatefulWidget {
   const DashboardOrangTua({super.key});
@@ -13,28 +9,22 @@ class DashboardOrangTua extends StatefulWidget {
       _DashboardOrangTuaState();
 }
 
-class _DashboardOrangTuaState
-    extends State<DashboardOrangTua> {
-  // ====================================================
-  // WARNA APLIKASI
-  // ====================================================
-  static const Color primaryBlue = Color(0xFF3563B8);
-  static const Color primaryDark = Color(0xFF254A96);
-  static const Color background = Color(0xFFF6F8FC);
-  static const Color textColor = Color(0xFF172033);
-  static const Color greyText = Color(0xFF8290AE);
-  static const Color green = Color(0xFF63A85A);
-  static const Color orange = Color(0xFFF0A13B);
-  static const Color red = Color(0xFFE65B56);
+class _DashboardOrangTuaState extends State<DashboardOrangTua> {
+  static const primaryBlue = Color(0xFF3563B8);
+  static const primaryDark = Color(0xFF254A96);
+  static const background = Color(0xFFF6F8FC);
+  static const textColor = Color(0xFF172033);
+  static const greyText = Color(0xFF8290AE);
+  static const green = Color(0xFF63A85A);
+  static const orange = Color(0xFFF0A13B);
+  static const red = Color(0xFFE65B56);
 
+  // 0 = Dashboard, 1 = Riwayat, 2 = Profil
   int selectedIndex = 0;
   String pencarian = '';
   String filter = 'Semua';
 
-  // ====================================================
-  // DATA PELANGGARAN CONTOH
-  // ====================================================
-  static const List<_PelanggaranAnak> pelanggaran = [
+  final List<_PelanggaranAnak> pelanggaran = const [
     _PelanggaranAnak(
       judul: 'Terlambat masuk kelas',
       tanggal: '15 Januari 2026 • 08:15',
@@ -64,32 +54,21 @@ class _DashboardOrangTuaState
     ),
   ];
 
-  // ====================================================
-  // FUNGSI MEMINDAHKAN TAB
-  // ====================================================
   void bukaHalaman(int index) {
     setState(() {
       selectedIndex = index;
     });
   }
 
-  // ====================================================
-  // TOTAL POIN
-  // ====================================================
-  int get totalPoin {
-    return pelanggaran.fold(
-      0,
-      (jumlah, item) => jumlah + item.poin,
-    );
-  }
+  int get totalPoin => pelanggaran.fold(
+        0,
+        (jumlah, item) => jumlah + item.poin,
+      );
 
-  // ====================================================
-  // FILTER RIWAYAT
-  // ====================================================
   List<_PelanggaranAnak> get riwayatTampil {
-    return pelanggaran.where((item) {
-      final kata = pencarian.toLowerCase();
+    final kata = pencarian.toLowerCase();
 
+    return pelanggaran.where((item) {
       final cocokCari =
           item.judul.toLowerCase().contains(kata) ||
           item.tanggal.toLowerCase().contains(kata);
@@ -101,21 +80,6 @@ class _DashboardOrangTuaState
     }).toList();
   }
 
-  // ====================================================
-  // PESAN NOTIFIKASI
-  // ====================================================
-  void tampilkanPesan(String pesan) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(pesan),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  // ====================================================
-  // WARNA KATEGORI
-  // ====================================================
   Color warnaKategori(String kategori) {
     switch (kategori) {
       case 'Ringan':
@@ -129,117 +93,136 @@ class _DashboardOrangTuaState
     }
   }
 
-  // ====================================================
-  // DETAIL PELANGGARAN
-  // ====================================================
+  void tampilkanPesan(String pesan) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(pesan)),
+    );
+  }
+
+  // LOGOUT ORANG TUA
+  Future<void> logout() async {
+    final keluar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Konfirmasi Logout'),
+        content: const Text(
+          'Apakah Anda yakin ingin keluar dari Smart Discipline?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, true),
+            child: const Text('Ya, Keluar'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted || keluar != true) return;
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => const LoginScreen(),
+      ),
+      (route) => false,
+    );
+  }
+
   void lihatDetail(_PelanggaranAnak item) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: Colors.white,
-      builder: (context) {
-        return SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              24, 12, 24, 30,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Detail Pelanggaran Anak',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Detail Pelanggaran Anak',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _detailBaris('Jenis Pelanggaran', item.judul),
+              _detailBaris('Tanggal', item.tanggal),
+              _detailBaris('Kategori', item.kategori),
+              _detailBaris(
+                'Poin Pelanggaran',
+                '${item.poin} Poin',
+              ),
+              _detailBaris('Dicatat Oleh', item.petugas),
+              _detailBaris('Keterangan', item.keterangan),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryBlue,
+                    foregroundColor: Colors.white,
                   ),
+                  child: const Text('Tutup'),
                 ),
-
-                const SizedBox(height: 22),
-
-                _InfoBaris(
-                  label: 'Jenis Pelanggaran',
-                  value: item.judul,
-                ),
-
-                _InfoBaris(
-                  label: 'Tanggal',
-                  value: item.tanggal,
-                ),
-
-                _InfoBaris(
-                  label: 'Kategori',
-                  value: item.kategori,
-                ),
-
-                _InfoBaris(
-                  label: 'Poin Pelanggaran',
-                  value: '${item.poin} Poin',
-                ),
-
-                _InfoBaris(
-                  label: 'Dicatat Oleh',
-                  value: item.petugas,
-                ),
-
-                const SizedBox(height: 10),
-
-                const Text(
-                  'Keterangan',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  item.keterangan,
-                  style: const TextStyle(
-                    color: greyText,
-                    height: 1.6,
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryBlue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.all(15),
-                    ),
-                    child: const Text('Tutup'),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
-  // ====================================================
-  // BUILD UTAMA
-  // ====================================================
+  Widget _detailBaris(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(color: greyText),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
-
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
-        elevation: 0,
+
+        // PANAH KEMBALI DI RIWAYAT DAN PROFIL
+        leading: selectedIndex == 0
+            ? null
+            : IconButton(
+                tooltip: 'Kembali ke Dashboard Orang Tua',
+                icon: const Icon(Icons.arrow_back_rounded),
+                color: primaryBlue,
+                onPressed: () => bukaHalaman(0),
+              ),
+
         title: const Row(
           children: [
             Icon(
@@ -263,10 +246,9 @@ class _DashboardOrangTuaState
 
         actions: [
           IconButton(
+            tooltip: 'Notifikasi',
             onPressed: () {
-              tampilkanPesan(
-                'Notifikasi belum tersedia.',
-              );
+              tampilkanPesan('Notifikasi belum tersedia.');
             },
             icon: const Icon(
               Icons.notifications_none_rounded,
@@ -277,18 +259,13 @@ class _DashboardOrangTuaState
         ],
       ),
 
-      // ==================================================
-      // KONTEN HALAMAN AKTIF
-      // ==================================================
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
             final desktop = constraints.maxWidth >= 800;
 
             return SingleChildScrollView(
-              padding: EdgeInsets.all(
-                desktop ? 28 : 18,
-              ),
+              padding: EdgeInsets.all(desktop ? 28 : 18),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
@@ -306,39 +283,32 @@ class _DashboardOrangTuaState
         ),
       ),
 
-      // ==================================================
-      // BOTTOM NAVIGATION
-      // ==================================================
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: const Color(0xFFF0ECF5),
-        indicatorColor: const Color(0xFFE0E3FA),
-        selectedIndex: selectedIndex,
-
-        onDestinationSelected: (index) {
-          bukaHalaman(index);
-        },
-
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.history_rounded),
-            label: 'Riwayat',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_rounded),
-            label: 'Profil',
-          ),
-        ],
-      ),
+      // MENU HOME DIHAPUS
+      // HANYA RIWAYAT DAN PROFIL
+      // MENU INI MUNCUL PADA DASHBOARD UTAMA
+      bottomNavigationBar: selectedIndex == 0
+          ? NavigationBar(
+              backgroundColor: const Color(0xFFF0ECF5),
+              indicatorColor: const Color(0xFFE0E3FA),
+              onDestinationSelected: (index) {
+                bukaHalaman(index + 1);
+              },
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.history_rounded),
+                  label: 'Riwayat',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.person_rounded),
+                  label: 'Profil',
+                ),
+              ],
+            )
+          : null,
     );
   }
 
-  // ====================================================
-  // HALAMAN HOME / BERANDA
-  // ====================================================
+  // DASHBOARD UTAMA ORANG TUA
   Widget buildBeranda() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,60 +321,32 @@ class _DashboardOrangTuaState
             fontWeight: FontWeight.w900,
           ),
         ),
-
         const SizedBox(height: 6),
-
         const Text(
           'Pantau perkembangan kedisiplinan anak '
           'dengan mudah dan terstruktur.',
-          style: TextStyle(
-            color: greyText,
-            fontSize: 13,
-          ),
+          style: TextStyle(color: greyText),
         ),
-
         const SizedBox(height: 22),
 
-        // ============================================
         // KARTU INFORMASI ANAK
-        // ============================================
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [
-                primaryBlue,
-                primaryDark,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+              colors: [primaryBlue, primaryDark],
             ),
             borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: primaryBlue.withValues(
-                  alpha: 0.18,
-                ),
-                blurRadius: 18,
-                offset: const Offset(0, 7),
-              ),
-            ],
           ),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Informasi Anak',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: Colors.white70),
               ),
-
               const SizedBox(height: 16),
-
               const Row(
                 children: [
                   CircleAvatar(
@@ -414,14 +356,12 @@ class _DashboardOrangTuaState
                       'AR',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 19,
                         fontWeight: FontWeight.w900,
+                        fontSize: 19,
                       ),
                     ),
                   ),
-
                   SizedBox(width: 14),
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment:
@@ -435,14 +375,11 @@ class _DashboardOrangTuaState
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-
                         SizedBox(height: 5),
-
                         Text(
                           'XII Multimedia 1',
                           style: TextStyle(
                             color: Colors.white70,
-                            fontSize: 12,
                           ),
                         ),
                       ],
@@ -450,16 +387,10 @@ class _DashboardOrangTuaState
                   ),
                 ],
               ),
-
-              const SizedBox(height: 20),
-
+              const SizedBox(height: 18),
               OutlinedButton.icon(
-                onPressed: () {
-                  bukaHalaman(2);
-                },
-                icon: const Icon(
-                  Icons.person_outline_rounded,
-                ),
+                onPressed: () => bukaHalaman(2),
+                icon: const Icon(Icons.person_outline_rounded),
                 label: const Text('Lihat Profil Anak'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.white,
@@ -473,25 +404,12 @@ class _DashboardOrangTuaState
         ),
 
         const SizedBox(height: 27),
-
-        // ============================================
-        // STATISTIK KEDISIPLINAN
-        // ============================================
-        const Text(
-          'Ringkasan Kedisiplinan Anak',
-          style: TextStyle(
-            color: textColor,
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-
+        _judul('Ringkasan Kedisiplinan Anak'),
         const SizedBox(height: 15),
 
         LayoutBuilder(
           builder: (context, ukuran) {
             final lebar = ukuran.maxWidth;
-
             final lebarKartu = lebar >= 750
                 ? (lebar - 32) / 3
                 : lebar >= 480
@@ -504,29 +422,29 @@ class _DashboardOrangTuaState
               children: [
                 SizedBox(
                   width: lebarKartu,
-                  child: const _StatCard(
-                    judul: 'Skor Kedisiplinan',
-                    nilai: '85',
-                    icon: Icons.star_rounded,
-                    warna: green,
+                  child: _statistik(
+                    'Skor Kedisiplinan',
+                    '85',
+                    Icons.star_rounded,
+                    green,
                   ),
                 ),
                 SizedBox(
                   width: lebarKartu,
-                  child: _StatCard(
-                    judul: 'Jumlah Pelanggaran',
-                    nilai: '${pelanggaran.length}',
-                    icon: Icons.warning_rounded,
-                    warna: red,
+                  child: _statistik(
+                    'Jumlah Pelanggaran',
+                    '${pelanggaran.length}',
+                    Icons.warning_rounded,
+                    red,
                   ),
                 ),
                 SizedBox(
                   width: lebarKartu,
-                  child: _StatCard(
-                    judul: 'Total Poin',
-                    nilai: '$totalPoin',
-                    icon: Icons.remove_circle_rounded,
-                    warna: orange,
+                  child: _statistik(
+                    'Total Poin',
+                    '$totalPoin',
+                    Icons.remove_circle_rounded,
+                    orange,
                   ),
                 ),
               ],
@@ -535,32 +453,13 @@ class _DashboardOrangTuaState
         ),
 
         const SizedBox(height: 27),
-
-        // ============================================
-        // STATUS KEDISIPLINAN
-        // ============================================
-        const Text(
-          'Status Kedisiplinan',
-          style: TextStyle(
-            color: textColor,
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-
+        _judul('Status Kedisiplinan'),
         const SizedBox(height: 14),
 
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(21),
-            border: Border.all(
-              color: const Color(0xFFE5EAF3),
-            ),
-          ),
-
+          decoration: _boxDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -570,7 +469,6 @@ class _DashboardOrangTuaState
                     child: Text(
                       'Skor kedisiplinan anak',
                       style: TextStyle(
-                        color: textColor,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -585,40 +483,18 @@ class _DashboardOrangTuaState
                   ),
                 ],
               ),
-
               const SizedBox(height: 16),
-
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: const LinearProgressIndicator(
-                  value: 0.85,
-                  minHeight: 13,
-                  color: green,
-                  backgroundColor: Color(0xFFE8F3E8),
-                ),
+              const LinearProgressIndicator(
+                value: 0.85,
+                minHeight: 13,
+                color: green,
+                backgroundColor: Color(0xFFE8F3E8),
               ),
-
               const SizedBox(height: 13),
-
-              const Row(
-                children: [
-                  Icon(
-                    Icons.verified_rounded,
-                    color: green,
-                    size: 19,
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Status kedisiplinan anak baik. '
-                      'Terus berikan dukungan.',
-                      style: TextStyle(
-                        color: greyText,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
+              const Text(
+                '✅ Status kedisiplinan anak baik. '
+                'Terus berikan dukungan.',
+                style: TextStyle(color: greyText),
               ),
             ],
           ),
@@ -626,93 +502,51 @@ class _DashboardOrangTuaState
 
         const SizedBox(height: 27),
 
-        // ============================================
-        // RIWAYAT TERBARU
-        // ============================================
         Row(
           children: [
-            const Expanded(
-              child: Text(
-                'Pelanggaran Terbaru',
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
+            Expanded(
+              child: _judul('Pelanggaran Terbaru'),
             ),
-
             TextButton(
-              onPressed: () {
-                bukaHalaman(1);
-              },
+              onPressed: () => bukaHalaman(1),
               child: const Text('Lihat Semua'),
             ),
           ],
         ),
-
         const SizedBox(height: 12),
 
         ...pelanggaran.take(2).map(
-          (item) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: buildKartuPelanggaran(item),
-          ),
-        ),
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: buildKartuPelanggaran(item),
+              ),
+            ),
 
-        const SizedBox(height: 17),
+        const SizedBox(height: 20),
 
-        // ============================================
-        // INFORMASI UNTUK ORANG TUA
-        // ============================================
         Container(
-          width: double.infinity,
           padding: const EdgeInsets.all(20),
-
           decoration: BoxDecoration(
             color: const Color(0xFFEAF1FF),
             borderRadius: BorderRadius.circular(18),
           ),
-
           child: const Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(
                 Icons.lightbulb_outline_rounded,
                 color: primaryBlue,
-                size: 25,
               ),
-
               SizedBox(width: 12),
-
               Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Dukungan Orang Tua',
-                      style: TextStyle(
-                        color: primaryDark,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15,
-                      ),
-                    ),
-
-                    SizedBox(height: 7),
-
-                    Text(
-                      'Dukung anak untuk selalu hadir '
-                      'tepat waktu, mematuhi peraturan '
-                      'sekolah, dan bertanggung jawab '
-                      'terhadap kegiatan belajar.',
-                      style: TextStyle(
-                        color: primaryDark,
-                        fontSize: 12,
-                        height: 1.6,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Dukungan Orang Tua\n'
+                  'Dukung anak untuk hadir tepat waktu, '
+                  'mematuhi peraturan sekolah, dan '
+                  'bertanggung jawab terhadap kegiatan belajar.',
+                  style: TextStyle(
+                    color: primaryDark,
+                    height: 1.5,
+                  ),
                 ),
               ),
             ],
@@ -720,27 +554,22 @@ class _DashboardOrangTuaState
         ),
 
         const SizedBox(height: 22),
-
         const Center(
           child: Text(
             'Data masih berupa contoh prototype '
             'dan belum terhubung ke database.',
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: greyText,
               fontSize: 11,
             ),
-            textAlign: TextAlign.center,
           ),
         ),
-
-        const SizedBox(height: 20),
       ],
     );
   }
 
-  // ====================================================
-  // HALAMAN RIWAYAT ANAK
-  // ====================================================
+  // HALAMAN RIWAYAT ORANG TUA
   Widget buildRiwayat() {
     final daftar = riwayatTampil;
 
@@ -755,33 +584,20 @@ class _DashboardOrangTuaState
             fontWeight: FontWeight.w900,
           ),
         ),
-
         const SizedBox(height: 7),
-
         const Text(
           'Lihat seluruh catatan kedisiplinan anak.',
-          style: TextStyle(
-            color: greyText,
-            fontSize: 13,
-          ),
+          style: TextStyle(color: greyText),
         ),
-
         const SizedBox(height: 23),
 
-        // ============================================
-        // KOLOM PENCARIAN
-        // ============================================
         TextField(
           onChanged: (value) {
-            setState(() {
-              pencarian = value;
-            });
+            setState(() => pencarian = value);
           },
           decoration: InputDecoration(
             hintText: 'Cari pelanggaran anak...',
-            prefixIcon: const Icon(
-              Icons.search_rounded,
-            ),
+            prefixIcon: const Icon(Icons.search_rounded),
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
@@ -793,9 +609,6 @@ class _DashboardOrangTuaState
 
         const SizedBox(height: 16),
 
-        // ============================================
-        // FILTER KATEGORI
-        // ============================================
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -819,12 +632,9 @@ class _DashboardOrangTuaState
                     color: dipilih
                         ? Colors.white
                         : textColor,
-                    fontWeight: FontWeight.w700,
                   ),
                   onSelected: (_) {
-                    setState(() {
-                      filter = item;
-                    });
+                    setState(() => filter = item);
                   },
                 ),
               );
@@ -836,25 +646,16 @@ class _DashboardOrangTuaState
 
         Text(
           'Ditemukan ${daftar.length} pelanggaran',
-          style: const TextStyle(
-            color: greyText,
-            fontSize: 13,
-          ),
+          style: const TextStyle(color: greyText),
         ),
 
         const SizedBox(height: 13),
 
-        // ============================================
-        // HASIL PENCARIAN DAN FILTER
-        // ============================================
         if (daftar.isEmpty)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(35),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-            ),
+            decoration: _boxDecoration(),
             child: const Column(
               children: [
                 Icon(
@@ -863,18 +664,10 @@ class _DashboardOrangTuaState
                   color: greyText,
                 ),
                 SizedBox(height: 12),
-                Text(
-                  'Data tidak ditemukan',
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text('Data tidak ditemukan'),
                 SizedBox(height: 6),
                 Text(
                   'Coba kata kunci atau kategori lain.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: greyText),
                 ),
               ],
             ),
@@ -886,13 +679,13 @@ class _DashboardOrangTuaState
               child: buildKartuPelanggaran(item),
             ),
           ),
+
+        const SizedBox(height: 20),
       ],
     );
   }
 
-  // ====================================================
-  // HALAMAN PROFIL ORANG TUA DAN ANAK
-  // ====================================================
+  // HALAMAN PROFIL ORANG TUA
   Widget buildProfil() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -905,12 +698,8 @@ class _DashboardOrangTuaState
             fontWeight: FontWeight.w900,
           ),
         ),
-
         const SizedBox(height: 20),
 
-        // ============================================
-        // KARTU PROFIL ORANG TUA
-        // ============================================
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(25),
@@ -931,9 +720,7 @@ class _DashboardOrangTuaState
                   size: 44,
                 ),
               ),
-
               SizedBox(height: 14),
-
               Text(
                 'Siti Rahmawati',
                 textAlign: TextAlign.center,
@@ -943,132 +730,102 @@ class _DashboardOrangTuaState
                   fontWeight: FontWeight.w900,
                 ),
               ),
-
               SizedBox(height: 6),
-
               Text(
                 'Orang Tua / Wali Siswa',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 13,
-                ),
+                style: TextStyle(color: Colors.white70),
               ),
             ],
           ),
         ),
 
         const SizedBox(height: 25),
-
-        const Text(
-          'Informasi Orang Tua',
-          style: TextStyle(
-            color: textColor,
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-
+        _judul('Informasi Orang Tua'),
         const SizedBox(height: 13),
 
-        const _InfoCard(
-          icon: Icons.person_outline_rounded,
-          judul: 'Nama Orang Tua',
-          isi: 'Siti Rahmawati',
+        _infoProfil(
+          Icons.person_outline_rounded,
+          'Nama Orang Tua',
+          'Siti Rahmawati',
+        ),
+        _infoProfil(
+          Icons.family_restroom_rounded,
+          'Hubungan dengan Siswa',
+          'Ibu',
+        ),
+        _infoProfil(
+          Icons.phone_outlined,
+          'Nomor Telepon',
+          'Belum tersedia',
         ),
 
-        const _InfoCard(
-          icon: Icons.family_restroom_rounded,
-          judul: 'Hubungan dengan Siswa',
-          isi: 'Ibu',
-        ),
-
-        const _InfoCard(
-          icon: Icons.phone_outlined,
-          judul: 'Nomor Telepon',
-          isi: 'Belum tersedia',
-        ),
-
-        const SizedBox(height: 25),
-
-        // ============================================
-        // IDENTITAS ANAK
-        // ============================================
-        const Text(
-          'Informasi Anak',
-          style: TextStyle(
-            color: textColor,
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-
+        const SizedBox(height: 20),
+        _judul('Informasi Anak'),
         const SizedBox(height: 13),
 
-        const _InfoCard(
-          icon: Icons.badge_outlined,
-          judul: 'Nama Siswa',
-          isi: 'Ahmad Rizky Pratama',
+        _infoProfil(
+          Icons.badge_outlined,
+          'Nama Siswa',
+          'Ahmad Rizky Pratama',
         ),
-
-        const _InfoCard(
-          icon: Icons.numbers_rounded,
-          judul: 'NIS',
-          isi: 'Belum tersedia',
+        _infoProfil(
+          Icons.numbers_rounded,
+          'NIS',
+          'Belum tersedia',
         ),
-
-        const _InfoCard(
-          icon: Icons.school_outlined,
-          judul: 'Kelas',
-          isi: 'XII Multimedia 1',
+        _infoProfil(
+          Icons.school_outlined,
+          'Kelas',
+          'XII Multimedia 1',
         ),
-
-        const _InfoCard(
-          icon: Icons.verified_outlined,
-          judul: 'Status Kedisiplinan',
-          isi: 'Baik',
+        _infoProfil(
+          Icons.verified_outlined,
+          'Status Kedisiplinan',
+          'Baik',
         ),
 
         const SizedBox(height: 18),
 
         Container(
-          width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: const Color(0xFFEAF1FF),
             borderRadius: BorderRadius.circular(15),
           ),
-
-          child: const Row(
-            children: [
-              Icon(
-                Icons.info_outline_rounded,
-                color: primaryBlue,
-              ),
-
-              SizedBox(width: 12),
-
-              Expanded(
-                child: Text(
-                  'Informasi profil masih menggunakan '
-                  'data contoh. Data asli akan tersedia '
-                  'setelah database dihubungkan.',
-                  style: TextStyle(
-                    color: primaryDark,
-                    fontSize: 12,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            ],
+          child: const Text(
+            'Informasi profil masih menggunakan data contoh. '
+            'Data asli akan tersedia setelah database dihubungkan.',
+            style: TextStyle(
+              color: primaryDark,
+              height: 1.5,
+            ),
           ),
         ),
+
+        const SizedBox(height: 25),
+
+        // TOMBOL LOGOUT
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: logout,
+            icon: const Icon(Icons.logout_rounded),
+            label: const Text('Logout'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: red,
+              side: const BorderSide(color: red),
+              padding: const EdgeInsets.symmetric(
+                vertical: 16,
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 20),
       ],
     );
   }
 
-  // ====================================================
-  // KARTU PELANGGARAN YANG BISA DIKLIK
-  // ====================================================
   Widget buildKartuPelanggaran(_PelanggaranAnak item) {
     final warna = warnaKategori(item.kategori);
 
@@ -1077,30 +834,20 @@ class _DashboardOrangTuaState
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        onTap: () {
-          lihatDetail(item);
-        },
-
+        onTap: () => lihatDetail(item),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: warna.withValues(alpha: 0.12),
-                  borderRadius:
-                      BorderRadius.circular(14),
-                ),
+              CircleAvatar(
+                backgroundColor:
+                    warna.withValues(alpha: 0.12),
                 child: Icon(
                   Icons.report_outlined,
                   color: warna,
                 ),
               ),
-
               const SizedBox(width: 12),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment:
@@ -1109,14 +856,10 @@ class _DashboardOrangTuaState
                     Text(
                       item.judul,
                       style: const TextStyle(
-                        color: textColor,
-                        fontSize: 13,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-
                     const SizedBox(height: 6),
-
                     Text(
                       item.tanggal,
                       style: const TextStyle(
@@ -1124,21 +867,17 @@ class _DashboardOrangTuaState
                         fontSize: 11,
                       ),
                     ),
-
-                    const SizedBox(height: 7),
-
+                    const SizedBox(height: 5),
                     Text(
                       item.kategori,
                       style: TextStyle(
                         color: warna,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
               ),
-
               Text(
                 '-${item.poin}',
                 style: const TextStyle(
@@ -1147,9 +886,6 @@ class _DashboardOrangTuaState
                   fontWeight: FontWeight.w900,
                 ),
               ),
-
-              const SizedBox(width: 5),
-
               const Icon(
                 Icons.chevron_right_rounded,
                 color: greyText,
@@ -1160,11 +896,117 @@ class _DashboardOrangTuaState
       ),
     );
   }
+
+  Widget _judul(String judul) {
+    return Text(
+      judul,
+      style: const TextStyle(
+        color: textColor,
+        fontSize: 18,
+        fontWeight: FontWeight.w900,
+      ),
+    );
+  }
+
+  BoxDecoration _boxDecoration() {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(
+        color: const Color(0xFFE5EAF3),
+      ),
+    );
+  }
+
+  Widget _statistik(
+    String judul,
+    String nilai,
+    IconData icon,
+    Color warna,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: _boxDecoration(),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor:
+                warna.withValues(alpha: 0.12),
+            child: Icon(icon, color: warna),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  nilai,
+                  style: const TextStyle(
+                    fontSize: 23,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                Text(
+                  judul,
+                  style: const TextStyle(
+                    color: greyText,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoProfil(
+    IconData icon,
+    String judul,
+    String isi,
+  ) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 11),
+      padding: const EdgeInsets.all(16),
+      decoration: _boxDecoration(),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor:
+                primaryBlue.withValues(alpha: 0.08),
+            child: Icon(icon, color: primaryBlue),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  judul,
+                  style: const TextStyle(
+                    color: greyText,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  isi,
+                  style: const TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-// ======================================================
-// MODEL DATA PELANGGARAN
-// ======================================================
 class _PelanggaranAnak {
   final String judul;
   final String tanggal;
@@ -1181,199 +1023,4 @@ class _PelanggaranAnak {
     required this.keterangan,
     required this.petugas,
   });
-}
-
-// ======================================================
-// KARTU STATISTIK
-// ======================================================
-class _StatCard extends StatelessWidget {
-  final String judul;
-  final String nilai;
-  final IconData icon;
-  final Color warna;
-
-  const _StatCard({
-    required this.judul,
-    required this.nilai,
-    required this.icon,
-    required this.warna,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(19),
-        border: Border.all(
-          color: const Color(0xFFE5EAF3),
-        ),
-      ),
-
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: warna.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(icon, color: warna),
-          ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nilai,
-                  style: const TextStyle(
-                    color: Color(0xFF172033),
-                    fontSize: 23,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  judul,
-                  style: const TextStyle(
-                    color: Color(0xFF8290AE),
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ======================================================
-// KARTU INFORMASI PROFIL
-// ======================================================
-class _InfoCard extends StatelessWidget {
-  final IconData icon;
-  final String judul;
-  final String isi;
-
-  const _InfoCard({
-    required this.icon,
-    required this.judul,
-    required this.isi,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 11),
-      padding: const EdgeInsets.all(16),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE5EAF3),
-        ),
-      ),
-
-      child: Row(
-        children: [
-          Container(
-            width: 43,
-            height: 43,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEAF1FF),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF3563B8),
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  judul,
-                  style: const TextStyle(
-                    color: Color(0xFF8290AE),
-                    fontSize: 12,
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                Text(
-                  isi,
-                  style: const TextStyle(
-                    color: Color(0xFF172033),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ======================================================
-// BARIS DETAIL PELANGGARAN
-// ======================================================
-class _InfoBaris extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _InfoBaris({
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF8290AE),
-              fontSize: 12,
-            ),
-          ),
-
-          const SizedBox(height: 5),
-
-          Text(
-            value,
-            style: const TextStyle(
-              color: Color(0xFF172033),
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

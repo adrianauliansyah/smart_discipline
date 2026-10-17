@@ -1,30 +1,61 @@
-
 import 'package:flutter/material.dart';
+import '../login_screen.dart';
 
 class ProfilSiswaScreen extends StatelessWidget {
   const ProfilSiswaScreen({super.key});
 
-  // =====================================================
-  // WARNA
-  // =====================================================
   static const Color primaryBlue = Color(0xFF3563B8);
   static const Color primaryDark = Color(0xFF254A96);
   static const Color background = Color(0xFFF6F8FC);
   static const Color textColor = Color(0xFF172033);
   static const Color greyText = Color(0xFF8290AE);
+  static const Color red = Color(0xFFE65B56);
+
+  // FUNGSI LOGOUT
+  Future<void> _logout(BuildContext context) async {
+    final keluar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Logout'),
+          content: const Text(
+            'Apakah Anda yakin ingin keluar dari Smart Discipline?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Batal'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Ya, Keluar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (keluar != true || !context.mounted) return;
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => const LoginScreen(),
+      ),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
 
-      // =================================================
-      // APP BAR
-      // =================================================
       appBar: AppBar(
-        title: const Text(
-          'Profil Siswa',
-        ),
+        title: const Text('Profil Siswa'),
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         foregroundColor: textColor,
@@ -34,25 +65,19 @@ class ProfilSiswaScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(
                 maxWidth: 850,
               ),
-
               child: Column(
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
-
                 children: [
-                  // ===============================
-                  // HEADER PROFIL
-                  // ===============================
+                  // HEADER PROFIL SISWA
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(26),
-
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [
@@ -62,44 +87,34 @@ class ProfilSiswaScreen extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-
                       borderRadius:
                           BorderRadius.circular(24),
                     ),
-
                     child: const Column(
                       children: [
                         CircleAvatar(
                           radius: 37,
-                          backgroundColor:
-                              Colors.white24,
-
+                          backgroundColor: Colors.white24,
                           child: Text(
                             'AR',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 22,
-                              fontWeight:
-                                  FontWeight.w900,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
                         ),
-
                         SizedBox(height: 14),
-
                         Text(
                           'Ahmad Rizky Pratama',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 21,
-                            fontWeight:
-                                FontWeight.w900,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
-
                         SizedBox(height: 6),
-
                         Text(
                           'XII Multimedia 1',
                           style: TextStyle(
@@ -113,9 +128,6 @@ class ProfilSiswaScreen extends StatelessWidget {
 
                   const SizedBox(height: 25),
 
-                  // ===============================
-                  // INFORMASI SISWA
-                  // ===============================
                   const Text(
                     'Informasi Siswa',
                     style: TextStyle(
@@ -153,29 +165,22 @@ class ProfilSiswaScreen extends StatelessWidget {
 
                   const SizedBox(height: 12),
 
-                  // ===============================
-                  // KETERANGAN DATABASE
-                  // ===============================
+                  // INFORMASI DATA PROTOTYPE
                   Container(
                     padding: const EdgeInsets.all(15),
-
                     decoration: BoxDecoration(
-                      color: primaryBlue.withValues(
-                        alpha: 0.07,
-                      ),
+                      color:
+                          primaryBlue.withValues(alpha: 0.07),
                       borderRadius:
                           BorderRadius.circular(15),
                     ),
-
                     child: const Row(
                       children: [
                         Icon(
                           Icons.info_outline,
                           color: primaryBlue,
                         ),
-
                         SizedBox(width: 12),
-
                         Expanded(
                           child: Text(
                             'Data profil masih contoh. '
@@ -193,6 +198,30 @@ class ProfilSiswaScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 25),
+
+                  // TOMBOL LOGOUT SISWA
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _logout(context),
+                      icon: const Icon(
+                        Icons.logout_rounded,
+                      ),
+                      label: const Text('Logout'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: red,
+                        side: const BorderSide(
+                          color: red,
+                        ),
+                        padding:
+                            const EdgeInsets.symmetric(
+                          vertical: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -203,9 +232,7 @@ class ProfilSiswaScreen extends StatelessWidget {
   }
 }
 
-// =====================================================
-// KARTU INFORMASI PROFIL
-// =====================================================
+// KARTU INFORMASI SISWA
 class _ProfilInfo extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -221,77 +248,52 @@ class _ProfilInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-
-      margin: const EdgeInsets.only(
-        bottom: 11,
-      ),
-
+      margin: const EdgeInsets.only(bottom: 11),
       padding: const EdgeInsets.all(16),
-
       decoration: BoxDecoration(
         color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(17),
-
+        borderRadius: BorderRadius.circular(17),
         border: Border.all(
           color: const Color(0xFFE5EAF3),
         ),
       ),
-
       child: Row(
         children: [
-          // ICON
           Container(
             width: 45,
             height: 45,
-
             decoration: BoxDecoration(
-              color:
-                  ProfilSiswaScreen.primaryBlue
-                      .withValues(
-                alpha: 0.08,
-              ),
-
-              borderRadius:
-                  BorderRadius.circular(12),
+              color: ProfilSiswaScreen.primaryBlue
+                  .withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
             ),
-
             child: Icon(
               icon,
-              color:
-                  ProfilSiswaScreen.primaryBlue,
+              color: ProfilSiswaScreen.primaryBlue,
             ),
           ),
 
           const SizedBox(width: 12),
 
-          // INFORMASI
           Expanded(
             child: Column(
               crossAxisAlignment:
                   CrossAxisAlignment.start,
-
               children: [
                 Text(
                   label,
                   style: const TextStyle(
-                    color:
-                        ProfilSiswaScreen.greyText,
+                    color: ProfilSiswaScreen.greyText,
                     fontSize: 12,
                   ),
                 ),
-
                 const SizedBox(height: 4),
-
                 Text(
                   value,
                   style: const TextStyle(
-                    color:
-                        ProfilSiswaScreen.textColor,
+                    color: ProfilSiswaScreen.textColor,
                     fontSize: 15,
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
